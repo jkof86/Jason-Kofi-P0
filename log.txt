@@ -6,3 +6,11 @@
 "email" : "abc@gmail.com",
 "password" : "123"
 }
+{
+"empId" : "02",
+"fname" : "Stephen",
+"lname": "Pagdilao",
+"address" : "456 Stone Ave.",
+"email" : "123@gmail.com",
+"password" : "abc"
+}
