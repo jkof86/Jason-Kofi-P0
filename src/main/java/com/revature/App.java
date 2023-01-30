@@ -52,7 +52,7 @@ public final class App {
 
         server.start(); //starts backend    
         System.out.println("Local server running on port: " + port1);
-
+        }
 
     }
-}
+

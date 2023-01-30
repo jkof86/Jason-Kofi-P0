@@ -1,0 +1,8 @@
+{
+"empId" : "01",
+"fname" : "Jason",
+"lname": "Kofi",
+"address" : "123 Main St.",
+"email" : "abc@gmail.com",
+"password" : "123"
+}

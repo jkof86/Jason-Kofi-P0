@@ -1,8 +1,15 @@
 package com.revature.controllers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
+import com.revature.service.EmployeeService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -56,20 +63,50 @@ public class Controller implements HttpHandler {
 
     public void postRequest(HttpExchange exchange) throws IOException {
 
-        String getResponse = "You selected the \"POST\" response";
+       //String getResponse = "You selected the \"POST\" response";
 
-        // first we retrieve the request body from the exchange
-        exchange.getRequestBody();
+        // not a string
+        // has a bunch of bytes
+        // need to convert input stream to string
+        // we'll be using StringBuilder
+        InputStream is = exchange.getRequestBody();
 
-        // then we create a response
-        exchange.sendResponseHeaders(200, getResponse.getBytes().length);
-        // we have to save the string into a class that httpServer can handle
-        OutputStream os = exchange.getResponseBody();
+        //a mutable version of a string, more efficient
+        StringBuilder sb = new StringBuilder();
+        //converts our binary into letters
+        //try_resource block will automatically close the resource within the parenthese
+        try(Reader reader = new BufferedReader(new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+            
+            int c = 0;
+        
+            //read method from BufferedReader will return -1 when there's no more letters left
+            //we keep reading each letter until theres not more left
+            while ((c = reader.read()) != -1){
+                sb.append((char)c);
+            }
+        }
 
-        os.write(getResponse.getBytes()); // writing inside the response body
-        os.close(); // make sure to close the output stream
+            //we'll send a response once we reach the repository level
+            //therefore we need to pass down the exchange
+            // exchange.sendResponseHeaders(200, sb.toString().getBytes().length);
+            // OutputStream os = exchange.getResponseBody();
+            // os.write(sb.toString().getBytes());
 
-    }
+            //for now, let's send the new string to the service level for registration
+            EmployeeService es = new EmployeeService(exchange);
+            es.registerJson(sb.toString());
+        }
+
+        // // first we retrieve the request body from the exchange
+        // exchange.getRequestBody();
+
+        // // // then we create a response
+        // // exchange.sendResponseHeaders(200, getResponse.getBytes().length);
+        // // // we have to save the string into a class that httpServer can handle
+        // // OutputStream os = exchange.getResponseBody();
+
+        // // os.write(getResponse.getBytes()); // writing inside the response body
+        // // os.close(); // make sure to close the output stream
 
     public void putRequest(HttpExchange exchange) throws IOException {
 

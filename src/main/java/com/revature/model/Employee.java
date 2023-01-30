@@ -1,14 +1,15 @@
 package com.revature.model;
 
+//here we define our Employee objects
 public class Employee {
-    
+
     private int empId;
     private String fname;
     private String lname;
     private String address;
     private String email;
     private String password;
-
+    
     public Employee(int empId, String fname, String lname, String address, String email, String password){
         this.empId = empId;
         this.fname = fname;
@@ -64,6 +65,16 @@ public class Employee {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    //we override the toString() method to display the details of each emplyee object created
+    @Override
+    public String toString(){
+        return "\n\nEmployee ID: " + empId +
+               "\nName:  " + fname + " " + lname + 
+               "\nAddress: " + address +
+               "\nEmail: " + email +
+               "\nPassword: " + password;
     }
 
     
