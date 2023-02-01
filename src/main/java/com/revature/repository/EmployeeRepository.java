@@ -8,7 +8,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import com.revature.model.*;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -27,6 +32,11 @@ public class EmployeeRepository{
 
     public EmployeeRepository(HttpExchange exchange){
         this.exchange = exchange;
+    }
+        
+    //we need a constructor with no parameter
+    public EmployeeRepository(){
+
     }
 
     //here we will save each employee object that's created, locally
@@ -88,7 +98,29 @@ public class EmployeeRepository{
 
         }
 
+    }
 
+    public List<Employee> getAllEmployees() throws SQLException{
+        String sql = "select * from employees";
+        List<Employee> listofEmployees = new ArrayList();
+
+        try(Connection con = ConnectionUtil.getConnection()){
+            Statement s = con.createStatement(0, 0);
+            ResultSet rs = s.executeQuery(sql);
+
+            while(rs.next()){
+                Employee e = new Employee();
+                e.setEmpId(rs.getInt(1));
+                e.setFname(rs.getString(2));
+                e.setLname(rs.getString(3));
+                e.setAddress(rs.getString(4));
+                e.setEmail(rs.getString(5));
+                e.setPassword(rs.getString(6));
+
+                listofEmployees.add(e);
+            }
+        }
+        return listofEmployees;
     }
     
 }
