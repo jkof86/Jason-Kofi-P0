@@ -6,6 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -13,6 +16,7 @@ import com.sun.net.httpserver.HttpHandler;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.revature.model.Employee;
+import com.revature.utils.ConnectionUtil;
 
 //here we will save the Employee object into a database
 //first we'll start by saving a file passed down from a jsonObj locally
@@ -62,8 +66,28 @@ public class EmployeeRepository{
             os.close();
     }
 
-    public void register(Employee e){
-        //first we save the
+    public void register(Employee e) throws SQLException{
+
+        //this is the String we use to execute sql statements
+        String sql = "insert into project0 (empId, fname, lname, address, email, pass) values (?,?,?,?,?)";
+
+        try (Connection con = ConnectionUtil.getConnection()){
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            //we replace '?' into actual values from the obj we receive
+            //this uses 1 based indexing!!
+            ps.setString(1, e.getFname());
+            ps.setString(2, e.getLname());
+            ps.setString(3, e.getAddress());
+            ps.setString(4, e.getEmail());
+            ps.setString(5, e.getPassword());
+
+            //execute() does not expect to return anything from the statement
+            //executeQuery does expect something to result after executing the statement
+            ps.executeQuery();
+
+        }
+
 
     }
     

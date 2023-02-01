@@ -2,8 +2,14 @@ package com.revature;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.xml.ws.spi.http.HttpExchange;
 
 import com.revature.controllers.Controller;
+import com.revature.repository.EmployeeRepository;
+import com.revature.utils.ConnectionUtil;
 import com.sun.net.httpserver.HttpServer;
 
 public final class App {
@@ -52,6 +58,7 @@ public final class App {
 
         server.start(); //starts backend    
         System.out.println("Local server running on port: " + port1);
+        
         }
 
     }

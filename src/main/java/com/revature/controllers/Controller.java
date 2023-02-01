@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
 import com.revature.service.EmployeeService;
 import com.sun.net.httpserver.HttpExchange;
@@ -94,7 +95,12 @@ public class Controller implements HttpHandler {
 
             //for now, let's send the new string to the service level for registration
             EmployeeService es = new EmployeeService(exchange);
-            es.registerJson(sb.toString());
+            
+            //print to console for testing 
+            System.out.println("Exchange passed down to service level...");
+            
+            es.register(sb.toString());
+            
         }
 
         // // first we retrieve the request body from the exchange

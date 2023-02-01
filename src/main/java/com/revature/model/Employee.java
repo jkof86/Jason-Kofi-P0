@@ -10,14 +10,15 @@ public class Employee {
     private String email;
     private String password;
     
-    public Employee(int empId, String fname, String lname, String address, String email, String password){
-        this.empId = empId;
-        this.fname = fname;
-        this.lname = lname;
-        this.address = address;
-        this.email = email;
-        this.password = password;
-    }
+    //this constructor caused issues with the logic, so we'll remove for now
+    // public Employee(int empId, String fname, String lname, String address, String email, String password){
+    //     this.empId = empId;
+    //     this.fname = fname;
+    //     this.lname = lname;
+    //     this.address = address;
+    //     this.email = email;
+    //     this.password = password;
+    // }
 
     public int getEmpId() {
         return empId;
