@@ -52,23 +52,23 @@ public final class App {
         //     e.printStackTrace();
         // }
 
-        // int port1 = 8000;
-        // HttpServer server = HttpServer.create(new InetSocketAddress(port1), 0);
-        // server.setExecutor(null);
+        int port1 = 8000;
+        HttpServer server = HttpServer.create(new InetSocketAddress(port1), 0);
+        server.setExecutor(null);
 
-        // server.createContext("/testUrl", new Controller());
+        server.createContext("/testUrl", new Controller());
 
-        // server.start(); //starts backend    
-        // System.out.println("Local server running on port: " + port1);
+        server.start(); //starts backend    
+        System.out.println("Local server running on port: " + port1);
         
 
-        try {
-            EmployeeRepository repo = new EmployeeRepository();
-            List<Employee> currentList = repo.getAllEmployees();
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // try {
+        //     EmployeeRepository repo = new EmployeeRepository();
+        //     List<Employee> currentList = repo.getAllEmployees();
+        // } catch (SQLException e) {
+        //     // TODO Auto-generated catch block
+        //     e.printStackTrace();
+        // }
         
         }
 
