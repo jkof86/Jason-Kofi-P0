@@ -82,7 +82,9 @@ public class Controller implements HttpHandler {
 
     public void postRequest(HttpExchange exchange) throws IOException {
 
-        // String getResponse = "You selected the \"POST\" response";
+        // we'll send a response once we reach the repository level
+        // therefore we need to pass down the exchange
+        EmployeeService es = new EmployeeService(exchange);
 
         // not a string
         // has a bunch of bytes
@@ -94,7 +96,8 @@ public class Controller implements HttpHandler {
         StringBuilder sb = new StringBuilder();
         // converts our binary into letters
         // try_resource block will automatically close the resource within the
-        // parenthese
+        // parentheses
+
         try (Reader reader = new BufferedReader(
                 new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
 
@@ -108,32 +111,14 @@ public class Controller implements HttpHandler {
             }
         }
 
-        // we'll send a response once we reach the repository level
-        // therefore we need to pass down the exchange
-        // exchange.sendResponseHeaders(200, sb.toString().getBytes().length);
-        // OutputStream os = exchange.getResponseBody();
-        // os.write(sb.toString().getBytes());
-
         // for now, let's send the new string to the service level for registration
-        EmployeeService es = new EmployeeService(exchange);
 
         // print to console for testing
         System.out.println("Exchange passed down to service level...");
-
+        // for now, let's send the new string to the service level for registration
         es.register(sb.toString());
 
     }
-
-    // // first we retrieve the request body from the exchange
-    // exchange.getRequestBody();
-
-    // // // then we create a response
-    // // exchange.sendResponseHeaders(200, getResponse.getBytes().length);
-    // // // we have to save the string into a class that httpServer can handle
-    // // OutputStream os = exchange.getResponseBody();
-
-    // // os.write(getResponse.getBytes()); // writing inside the response body
-    // // os.close(); // make sure to close the output stream
 
     public void putRequest(HttpExchange exchange) throws IOException {
 

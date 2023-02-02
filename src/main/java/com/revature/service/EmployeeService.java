@@ -1,11 +1,13 @@
 package com.revature.service;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.SQLException;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -23,34 +25,61 @@ public class EmployeeService {
         this.exchange = exchange;
     }
 
-    public void register(String jsonObj) {
+    private EmployeeRepository repo = new EmployeeRepository(exchange);
+    private ObjectMapper mapper = new ObjectMapper();
+    private Employee emp = new Employee();
+
+    public void register(String jsonObj) throws JsonGenerationException, JsonMappingException, IOException {
 
         // we pass the exchange down to the repository level
-        EmployeeRepository repo = new EmployeeRepository(exchange);
+
         // print to console for testing
         System.out.println("Exchange passed down to repository level...");
 
         // first we convert the jsonObj into an Employee object
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            Employee e = mapper.readValue(jsonObj, Employee.class);
-            // print to console for testing
-            System.out.println("Creating Employee object: " + e.toString() + "\n\nand sending to repository...");
-
-            // then we send the new object to the repository level
-            // there is where it's filtered and registered if it doesn't already exist
-
-            repo.register(e);
-
-        } catch (JsonParseException e1) {
+            emp = mapper.readValue(jsonObj, Employee.class);
+        } catch (IOException e) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (JsonMappingException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            e.printStackTrace();
+        }
+        // print to console for testing
+        System.out.println("Creating Employee object: " + emp.toString() + "\n\nand sending to repository...");
+
+        // then we send the new object to the repository level
+
+        try {
+            // if the registration was successful we send a response
+            if (repo.register(emp)) {
+                mapper = new ObjectMapper();
+                String response = "The DB was updated successfully!\n" + mapper.writeValueAsString(emp);
+                System.out.println(response);
+
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+            }
+            // if the statement fails we send a 400 response and a message
+            else {
+
+                String response = "There was an issue updating the DB...";
+                try {
+                    exchange.sendResponseHeaders(400, response.getBytes().length);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                OutputStream os = exchange.getResponseBody();
+                try {
+                    os.write(response.getBytes());
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
         } catch (SQLException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();

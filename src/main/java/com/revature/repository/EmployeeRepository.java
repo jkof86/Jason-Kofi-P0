@@ -41,6 +41,66 @@ public class EmployeeRepository {
 
     }
 
+    //we declare register a boolean treturn type so we can send response back at the service level
+    public boolean register(Employee e) throws SQLException, JsonGenerationException, JsonMappingException, IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        // this is the String we use to execute sql statements
+        String sql = "insert into employee (fname, lname, address, email, pw) values (?,?,?,?,?)";
+
+        try (Connection con = ConnectionUtil.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            // we replace '?' into actual values from the obj we receive
+            // this uses 1 based indexing!!
+            ps.setString(1, e.getFname());
+            ps.setString(2, e.getLname());
+            ps.setString(3, e.getAddress());
+            ps.setString(4, e.getEmail());
+            ps.setString(5, e.getPassword());
+
+            // execute() does not expect to return anything from the statement
+            // executeQuery does expect something to result after executing the statement
+
+            // if the statement executes successfully, we return the object and a
+            // confirmation in the response body
+            // executeUpdate() returns an int for the amount of rows affected, 0 for nothing
+            // returned
+
+            int result = ps.executeUpdate();
+            //testing result return value
+            System.out.println(result);
+
+            //if the operation is successful we return true back to the service layer
+            if (result > 0)
+            {return true;} else {return false;}
+        }
+
+    }
+
+    public List<Employee> getAllEmployees() throws SQLException {
+        String sql = "select * from employee";
+        List<Employee> listofEmployees = new ArrayList();
+
+        try (Connection con = ConnectionUtil.getConnection()) {
+            Statement s = con.createStatement(0, 0);
+            ResultSet rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                Employee e = new Employee();
+                e.setEmpId(rs.getInt(1));
+                e.setFname(rs.getString(2));
+                e.setLname(rs.getString(3));
+                e.setAddress(rs.getString(4));
+                e.setEmail(rs.getString(5));
+                e.setPassword(rs.getString(6));
+
+                listofEmployees.add(e);
+            }
+        }
+        return listofEmployees;
+    }
+
     // here we will save each employee object that's created, locally
     public void log(String s) throws IOException {
 
@@ -77,88 +137,6 @@ public class EmployeeRepository {
         // we made sure to use response1 so the .length is correct
         os.write(response1.getBytes());
         os.close();
-    }
-
-    public void register(Employee e) throws SQLException {
-
-        // this is the String we use to execute sql statements
-        String sql = "insert into employee (fname, lname, address, email, pw) values (?,?,?,?,?)";
-
-        try (Connection con = ConnectionUtil.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(sql);
-
-            // we replace '?' into actual values from the obj we receive
-            // this uses 1 based indexing!!
-            ps.setString(1, e.getFname());
-            ps.setString(2, e.getLname());
-            ps.setString(3, e.getAddress());
-            ps.setString(4, e.getEmail());
-            ps.setString(5, e.getPassword());
-
-            // execute() does not expect to return anything from the statement
-            // executeQuery does expect something to result after executing the statement
-
-            //if the statement executes successfully, we return the object and a confirmation in the response body
-            if (!ps.execute()) {
-                ObjectMapper mapper = new ObjectMapper();
-                String response;
-                try {
-                    //we create a string with the confirmation message and add a new json obj at the end
-                    response = "The DB was updated successfully!\n" + mapper.writeValueAsString(e);
-                    exchange.sendResponseHeaders(200, response.getBytes().length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(response.getBytes());
-                    os.close();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-               
-            } 
-
-
-            //if the statement fails we send a 400 response and a message
-            else {
-                String response = "There was an issue updating the DB...";
-                try {
-                    exchange.sendResponseHeaders(400, response.getBytes().length);
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                OutputStream os = exchange.getResponseBody();
-                try {
-                    os.write(response.getBytes());
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-            }
-        }
-
-    }
-
-    public List<Employee> getAllEmployees() throws SQLException {
-        String sql = "select * from employee";
-        List<Employee> listofEmployees = new ArrayList();
-
-        try (Connection con = ConnectionUtil.getConnection()) {
-            Statement s = con.createStatement(0, 0);
-            ResultSet rs = s.executeQuery(sql);
-
-            while (rs.next()) {
-                Employee e = new Employee();
-                e.setEmpId(rs.getInt(1));
-                e.setFname(rs.getString(2));
-                e.setLname(rs.getString(3));
-                e.setAddress(rs.getString(4));
-                e.setEmail(rs.getString(5));
-                e.setPassword(rs.getString(6));
-
-                listofEmployees.add(e);
-            }
-        }
-        return listofEmployees;
     }
 
 }
