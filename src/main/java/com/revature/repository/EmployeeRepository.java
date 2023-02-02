@@ -41,41 +41,80 @@ public class EmployeeRepository {
 
     }
 
-    //we declare register a boolean treturn type so we can send response back at the service level
-    public boolean register(Employee e) throws SQLException, JsonGenerationException, JsonMappingException, IOException {
+    // we declare register a boolean treturn type so we can send response back at
+    // the service level
+    public boolean register(Employee e)
+            throws SQLException, JsonGenerationException, JsonMappingException, IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        // this is the String we use to execute sql statements
-        String sql = "insert into employee (fname, lname, address, email, pw) values (?,?,?,?,?)";
+        // in order to check for duplicate entries in the existing table, first we must
+        // grab all the employee objects
+        // and compare fname, lname, and email
+        List<Employee> currentList = getAllEmployees();
 
-        try (Connection con = ConnectionUtil.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(sql);
+        // we use this to determine if there was a duplicate found with all 3 conditions
+        // we false as a default to avoid accidentally inserting new records
+        boolean dup = false;
 
-            // we replace '?' into actual values from the obj we receive
-            // this uses 1 based indexing!!
-            ps.setString(1, e.getFname());
-            ps.setString(2, e.getLname());
-            ps.setString(3, e.getAddress());
-            ps.setString(4, e.getEmail());
-            ps.setString(5, e.getPassword());
-
-            // execute() does not expect to return anything from the statement
-            // executeQuery does expect something to result after executing the statement
-
-            // if the statement executes successfully, we return the object and a
-            // confirmation in the response body
-            // executeUpdate() returns an int for the amount of rows affected, 0 for nothing
-            // returned
-
-            int result = ps.executeUpdate();
-            //testing result return value
-            System.out.println(result);
-
-            //if the operation is successful we return true back to the service layer
-            if (result > 0)
-            {return true;} else {return false;}
+        // now we iterate through the employee list and check for a duplicaate entry
+        for (Employee employee : currentList) {
+            if (employee.getFname().equalsIgnoreCase(e.getFname()) &&
+                    employee.getLname().equalsIgnoreCase(e.getLname()) &&
+                    employee.getEmail().equalsIgnoreCase(e.getEmail())) {
+                System.out.println("Duplicate found...");
+                dup = true;
+            } else {
+                System.out.println("No Duplicates found...");
+                System.out.println("Proceeding to INSERT operation");
+                dup = false;
+            }
         }
 
+        // if there is no duplicates, we continue as normal
+        if (dup == false) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            // this is the String we use to execute sql statements
+            String sql = "insert into employee (fname, lname, address, email, pw) values (?,?,?,?,?)";
+
+            try (Connection con = ConnectionUtil.getConnection()) {
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                // we replace '?' into actual values from the obj we receive
+                // this uses 1 based indexing!!
+                ps.setString(1, e.getFname());
+                ps.setString(2, e.getLname());
+                ps.setString(3, e.getAddress());
+                ps.setString(4, e.getEmail());
+                ps.setString(5, e.getPassword());
+
+                // execute() does not expect to return anything from the statement
+                // executeQuery does expect something to result after executing the statement
+
+                // if the statement executes successfully, we return the object and a
+                // confirmation in the response body
+                // executeUpdate() returns an int for the amount of rows affected, 0 for nothing
+                // returned
+
+                int result = ps.executeUpdate();
+                // testing result return value
+                System.out.println(result);
+
+                // if the operation is successful we return true back to the service layer
+                if (result > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } 
+
+        // if there is a duplicate entry found, we just return false back to the service
+        // layer
+        
+        else {
+            System.out.println("Duplicate DB Entry was found...");
+            return false;
+        }
     }
 
     public List<Employee> getAllEmployees() throws SQLException {

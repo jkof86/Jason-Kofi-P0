@@ -74,6 +74,7 @@ public class EmployeeService {
                 OutputStream os = exchange.getResponseBody();
                 try {
                     os.write(response.getBytes());
+                    os.close();
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
