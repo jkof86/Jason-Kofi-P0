@@ -68,12 +68,13 @@ public class Controller implements HttpHandler {
 
         // now we retrieve the request body from the exchange
         exchange.getRequestBody();
-      
+
         // then we create a response
         exchange.sendResponseHeaders(200, response.getBytes().length);
         // we have to save the string into a class that httpServer can handle
         OutputStream os = exchange.getResponseBody();
 
+        System.out.println("These objects were retrieved from the DB..." + response);
         os.write(response.getBytes()); // writing inside the response body
         os.close(); // make sure to close the output stream
 
