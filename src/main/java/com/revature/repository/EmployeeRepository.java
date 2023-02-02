@@ -139,7 +139,7 @@ public class EmployeeRepository {
     }
 
     public List<Employee> getAllEmployees() throws SQLException {
-        String sql = "select * from employees";
+        String sql = "select * from employee";
         List<Employee> listofEmployees = new ArrayList();
 
         try (Connection con = ConnectionUtil.getConnection()) {

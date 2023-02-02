@@ -9,7 +9,12 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.List;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
+import com.revature.model.Employee;
+import com.revature.repository.EmployeeRepository;
 import com.revature.service.EmployeeService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -28,43 +33,55 @@ public class Controller implements HttpHandler {
 
         switch (httpVerb) {
             case "GET":
-                getRequest(exchange);
+                try {
+                    getRequest(exchange);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 break;
 
-                case "POST":
+            case "POST":
                 postRequest(exchange);
                 break;
 
-                case "PUT":
+            case "PUT":
                 putRequest(exchange);
                 break;
-                
-                default:
+
+            default:
                 otherRequest(exchange);
                 break;
         }
     }
 
-    public void getRequest(HttpExchange exchange) throws IOException {
+    public void getRequest(HttpExchange exchange) throws IOException, SQLException {
 
-        String getResponse = "You selected the \"GET\" response";
+        // we create a repo object
+        EmployeeRepository repo = new EmployeeRepository();
+        // then we create a list of employees to hold the data pulled from the db
+        List<Employee> currentList = repo.getAllEmployees();
+        // we convert the list of employees to a json obj
+        // then we store it in a string to send in the response body
+        ObjectMapper mapper = new ObjectMapper();
+        String response = mapper.writeValueAsString(currentList);
 
-        // first we retrieve the request body from the exchange
+        // now we retrieve the request body from the exchange
         exchange.getRequestBody();
-
+      
         // then we create a response
-        exchange.sendResponseHeaders(200, getResponse.getBytes().length);
+        exchange.sendResponseHeaders(200, response.getBytes().length);
         // we have to save the string into a class that httpServer can handle
         OutputStream os = exchange.getResponseBody();
 
-        os.write(getResponse.getBytes()); // writing inside the response body
+        os.write(response.getBytes()); // writing inside the response body
         os.close(); // make sure to close the output stream
 
     }
 
     public void postRequest(HttpExchange exchange) throws IOException {
 
-       //String getResponse = "You selected the \"POST\" response";
+        // String getResponse = "You selected the \"POST\" response";
 
         // not a string
         // has a bunch of bytes
@@ -72,47 +89,50 @@ public class Controller implements HttpHandler {
         // we'll be using StringBuilder
         InputStream is = exchange.getRequestBody();
 
-        //a mutable version of a string, more efficient
+        // a mutable version of a string, more efficient
         StringBuilder sb = new StringBuilder();
-        //converts our binary into letters
-        //try_resource block will automatically close the resource within the parenthese
-        try(Reader reader = new BufferedReader(new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
-            
+        // converts our binary into letters
+        // try_resource block will automatically close the resource within the
+        // parenthese
+        try (Reader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+
             int c = 0;
-        
-            //read method from BufferedReader will return -1 when there's no more letters left
-            //we keep reading each letter until theres not more left
-            while ((c = reader.read()) != -1){
-                sb.append((char)c);
+
+            // read method from BufferedReader will return -1 when there's no more letters
+            // left
+            // we keep reading each letter until theres not more left
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
             }
         }
 
-            //we'll send a response once we reach the repository level
-            //therefore we need to pass down the exchange
-            // exchange.sendResponseHeaders(200, sb.toString().getBytes().length);
-            // OutputStream os = exchange.getResponseBody();
-            // os.write(sb.toString().getBytes());
+        // we'll send a response once we reach the repository level
+        // therefore we need to pass down the exchange
+        // exchange.sendResponseHeaders(200, sb.toString().getBytes().length);
+        // OutputStream os = exchange.getResponseBody();
+        // os.write(sb.toString().getBytes());
 
-            //for now, let's send the new string to the service level for registration
-            EmployeeService es = new EmployeeService(exchange);
-            
-            //print to console for testing 
-            System.out.println("Exchange passed down to service level...");
-            
-            es.register(sb.toString());
-            
-        }
+        // for now, let's send the new string to the service level for registration
+        EmployeeService es = new EmployeeService(exchange);
 
-        // // first we retrieve the request body from the exchange
-        // exchange.getRequestBody();
+        // print to console for testing
+        System.out.println("Exchange passed down to service level...");
 
-        // // // then we create a response
-        // // exchange.sendResponseHeaders(200, getResponse.getBytes().length);
-        // // // we have to save the string into a class that httpServer can handle
-        // // OutputStream os = exchange.getResponseBody();
+        es.register(sb.toString());
 
-        // // os.write(getResponse.getBytes()); // writing inside the response body
-        // // os.close(); // make sure to close the output stream
+    }
+
+    // // first we retrieve the request body from the exchange
+    // exchange.getRequestBody();
+
+    // // // then we create a response
+    // // exchange.sendResponseHeaders(200, getResponse.getBytes().length);
+    // // // we have to save the string into a class that httpServer can handle
+    // // OutputStream os = exchange.getResponseBody();
+
+    // // os.write(getResponse.getBytes()); // writing inside the response body
+    // // os.close(); // make sure to close the output stream
 
     public void putRequest(HttpExchange exchange) throws IOException {
 

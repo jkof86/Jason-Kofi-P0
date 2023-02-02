@@ -61,15 +61,6 @@ public final class App {
         server.start(); //starts backend    
         System.out.println("Local server running on port: " + port1);
         
-
-        // try {
-        //     EmployeeRepository repo = new EmployeeRepository();
-        //     List<Employee> currentList = repo.getAllEmployees();
-        // } catch (SQLException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
-        // }
-        
         }
 
     }
