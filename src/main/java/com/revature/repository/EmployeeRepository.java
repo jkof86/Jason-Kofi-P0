@@ -55,10 +55,12 @@ public class EmployeeRepository {
         // we false as a default to avoid accidentally inserting new records
         boolean dup = false;
 
-        // now we iterate through the employee list and check for a duplicaate entry
+        // now we iterate through the employee list and check for a duplicate entry
+        //if the full name matches, OR the email matches an existing one, we set dup to true and cancel the registration
+        //we will only allow unique email addresses in the DB
         for (Employee employee : currentList) {
             if (employee.getFname().equalsIgnoreCase(e.getFname()) &&
-                    employee.getLname().equalsIgnoreCase(e.getLname()) &&
+                    employee.getLname().equalsIgnoreCase(e.getLname()) ||
                     employee.getEmail().equalsIgnoreCase(e.getEmail())) {
                 System.out.println("Duplicate found...");
                 dup = true;
@@ -74,7 +76,7 @@ public class EmployeeRepository {
 
             ObjectMapper mapper = new ObjectMapper();
             // this is the String we use to execute sql statements
-            String sql = "insert into employee (fname, lname, address, email, pw) values (?,?,?,?,?)";
+            String sql = "insert into employee (fname, lname, address, email, pw, roleid) values (?,?,?,?,?,?)";
 
             try (Connection con = ConnectionUtil.getConnection()) {
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -86,6 +88,11 @@ public class EmployeeRepository {
                 ps.setString(3, e.getAddress());
                 ps.setString(4, e.getEmail());
                 ps.setString(5, e.getPassword());
+                
+                //role (1) = Employee
+                //role (2) = Manager
+                //we make sure to add the default "employee role" to the new registration
+                ps.setInt(6, 1);
 
                 // execute() does not expect to return anything from the statement
                 // executeQuery does expect something to result after executing the statement

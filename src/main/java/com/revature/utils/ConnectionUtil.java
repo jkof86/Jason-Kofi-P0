@@ -6,21 +6,21 @@ import java.sql.SQLException;
 
 public class ConnectionUtil {
 
-    //we want only one connection to the database the entire time 
+    // we want only one connection to the database the entire time
     private static Connection con;
 
-    public ConnectionUtil(){
+    public ConnectionUtil() {
         con = null;
     }
-    
-    //method will give us a connection to db
-    //OR it will give the existing connection
-    public static Connection getConnection(){
 
-        //determine if we already have a connection
-        //if so give the current connection
+    // method will give us a connection to db
+    // OR it will give the existing connection
+    public static Connection getConnection() {
+
+        // determine if we already have a connection
+        // if so give the current connection
         try {
-            if (con != null && !con.isClosed()){
+            if (con != null && !con.isClosed()) {
                 return con;
             }
         } catch (SQLException e) {
@@ -30,7 +30,7 @@ public class ConnectionUtil {
 
         String url, user, pass;
 
-        //not smart, it will be exposed once we push to remote repo
+        // not smart, it will be exposed once we push to remote repo
         // url = "localhost";
         // user = "johnSmith52";
         // pass = "123qwe";
@@ -39,13 +39,13 @@ public class ConnectionUtil {
         user = System.getenv("user");
         pass = System.getenv("pass");
 
-        System.out.println(url);
-        System.out.println(user);
-        System.out.println(pass);
+        // System.out.println(url);
+        // System.out.println(user);
+        // System.out.println(pass);
 
         try {
             con = DriverManager.getConnection(url, user, pass);
-            //we print the status of the connection
+            // we print the status of the connection
             System.out.println("--CONNECTION TO DB ESTABLISHED SUCCESSFULLY");
         } catch (SQLException e) {
             // TODO Auto-generated catch block

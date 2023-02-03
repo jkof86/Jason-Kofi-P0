@@ -9,6 +9,7 @@ public class Employee {
     private String address;
     private String email;
     private String password;
+    private int role;
     
     //this constructor caused issues with the logic, so we'll remove for now
     // public Employee(int empId, String fname, String lname, String address, String email, String password){
@@ -19,6 +20,14 @@ public class Employee {
     //     this.email = email;
     //     this.password = password;
     // }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
 
     public int getEmpId() {
         return empId;
@@ -75,7 +84,8 @@ public class Employee {
                "\nName:  " + fname + " " + lname + 
                "\nAddress: " + address +
                "\nEmail: " + email +
-               "\nPassword: " + password;
+               "\nPassword: " + password +
+               "\nRole: " + role;
     }
 
     
