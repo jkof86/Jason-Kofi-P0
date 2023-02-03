@@ -45,7 +45,7 @@ public class EmployeeService {
             e.printStackTrace();
         }
         // print to console for testing
-        System.out.println("Creating Employee object: " + emp.toString() + "\n\nand sending to repository...");
+        System.out.println("Creating Employee object: \n\n" + emp.toString() + "\n\nand sending to repository...");
 
         // then we send the new object to the repository level
 
@@ -85,10 +85,6 @@ public class EmployeeService {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-
-    }
-
-    public void login(String jsonObj) {
 
     }
 

@@ -26,20 +26,34 @@ public class Controller implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        // String someResponse = "This is a response using Strings!";
-        String someResponse2 = "Sorry, we're only accepting \"GET\" requests at the moment.";
-
         String httpVerb = exchange.getRequestMethod();
 
         switch (httpVerb) {
             case "GET":
-                try {
-                    getRequest(exchange);
-                } catch (SQLException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                // these if statements allows us to access different methods
+                // depending on the context path of the request
+                if (exchange.getHttpContext().getPath().equals("/testUrl")) {
+                    try {
+                        System.out.println(exchange.getHttpContext().getPath());
+                        getRequest(exchange);
+                    } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
-                break;
+
+                // these if statements allows us to access different methods
+                // depending on the context path of the request
+                else if (exchange.getHttpContext().getPath().equals("/testUrl/login")) {
+                    try {
+                        System.out.println(exchange.getHttpContext().getPath());
+                        login(exchange);
+                    } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+                }
 
             case "POST":
                 postRequest(exchange);
@@ -52,6 +66,60 @@ public class Controller implements HttpHandler {
             default:
                 otherRequest(exchange);
                 break;
+        }
+    }
+
+    public void login(HttpExchange exchange) throws IOException, SQLException {
+
+        // we create a repo object
+        EmployeeRepository repo = new EmployeeRepository();
+
+        InputStream is = exchange.getRequestBody();
+
+        // then we convert the request to an object and pass it into the repository
+        try (Reader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+
+            int c = 0;
+
+            // need to convert input stream to string
+            // we'll be using StringBuilder
+            StringBuilder sb = new StringBuilder();
+
+            // read method from BufferedReader will return -1 when there's no more letters
+            // left
+            // we keep reading each letter until theres not more left
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
+            }
+
+            // now we pass the string down to the repository for processing
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            if (repo.verify(sb.toString())) {
+                System.out.println("LOGIN SUCCESSFUL");
+                String response = mapper.writeValueAsString("LOGIN SUCCESSFUL");
+
+                // finally we return the response
+                OutputStream os = exchange.getResponseBody();
+                // we send the response header first
+                exchange.sendResponseHeaders((200), response.getBytes().length);
+                // then we write to the response body and close the connection
+                os.write(response.getBytes());
+                os.close();
+            } else {
+                System.out.println("ERROR: INCORRECT EMAIL OR PW...");
+                String response = mapper.writeValueAsString("ERROR: INCORRECT EMAIL OR PW...");
+
+                // finally we return the response
+                OutputStream os = exchange.getResponseBody();
+                // we send the response header first
+                exchange.sendResponseHeaders((400), response.getBytes().length);
+                // then we write to the response body and close the connection
+                os.write(response.getBytes());
+                os.close();
+            }
         }
     }
 

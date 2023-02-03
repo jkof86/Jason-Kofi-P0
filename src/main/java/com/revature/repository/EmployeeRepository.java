@@ -19,6 +19,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -56,8 +57,9 @@ public class EmployeeRepository {
         boolean dup = false;
 
         // now we iterate through the employee list and check for a duplicate entry
-        //if the full name matches, OR the email matches an existing one, we set dup to true and cancel the registration
-        //we will only allow unique email addresses in the DB
+        // if the full name matches, OR the email matches an existing one, we set dup to
+        // true and cancel the registration
+        // we will only allow unique email addresses in the DB
         for (Employee employee : currentList) {
             if (employee.getFname().equalsIgnoreCase(e.getFname()) &&
                     employee.getLname().equalsIgnoreCase(e.getLname()) ||
@@ -88,10 +90,10 @@ public class EmployeeRepository {
                 ps.setString(3, e.getAddress());
                 ps.setString(4, e.getEmail());
                 ps.setString(5, e.getPassword());
-                
-                //role (1) = Employee
-                //role (2) = Manager
-                //we make sure to add the default "employee role" to the new registration
+
+                // role (1) = Employee
+                // role (2) = Manager
+                // we make sure to add the default "employee role" to the new registration
                 ps.setInt(6, 1);
 
                 // execute() does not expect to return anything from the statement
@@ -113,11 +115,11 @@ public class EmployeeRepository {
                     return false;
                 }
             }
-        } 
+        }
 
         // if there is a duplicate entry found, we just return false back to the service
         // layer
-        
+
         else {
             System.out.println("Duplicate DB Entry was found...");
             return false;
@@ -140,11 +142,41 @@ public class EmployeeRepository {
                 e.setAddress(rs.getString(4));
                 e.setEmail(rs.getString(5));
                 e.setPassword(rs.getString(6));
+                e.setRole(rs.getInt(7));
 
                 listofEmployees.add(e);
+                // for testing
+                System.out.println("Gathering data...");
             }
+
         }
         return listofEmployees;
+    }
+
+    public boolean verify(String jsonObj) throws SQLException, JsonParseException, JsonMappingException, IOException {
+
+        EmployeeRepository repo = new EmployeeRepository();
+        ObjectMapper mapper = new ObjectMapper();
+
+        // we gather all entries in the DB and match them with the login info
+        List<Employee> currentList = repo.getAllEmployees();
+
+        // we convert the jsonObj to an Employee obj
+        Employee login = mapper.readValue(jsonObj, Employee.class);
+        System.out.println("The object created for verification: \n" + login.toString());
+
+        // then compare it to all the objects the DB created
+        for (Employee employee : currentList) {
+            if (employee.getEmail().equals(login.getEmail()) &&
+                    employee.getPassword().equals(login.getPassword())) {
+                // if we find a match, we immediately return true
+                return true;
+            }
+            // else we return false, no match
+            return false;
+        }
+        // return false by default
+        return false;
     }
 
     // here we will save each employee object that's created, locally
