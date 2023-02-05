@@ -97,9 +97,23 @@ public class Controller implements HttpHandler {
 
             ObjectMapper mapper = new ObjectMapper();
 
-            if (repo.verify(sb.toString())) {
-                System.out.println("LOGIN SUCCESSFUL");
-                String response = mapper.writeValueAsString("LOGIN SUCCESSFUL");
+            Employee e = repo.verify(sb.toString());
+
+            if (e != null) {
+                //System.out.println("LOGIN SUCCESSFUL");
+                String response; 
+                
+                //we print a manager or employee welcome based on the role id
+                //role 1 employee, role 2 manager
+                if (e.getRole() == 2){
+                    response = mapper.writeValueAsString("LOGIN SUCCESSFUL - MANAGER ID:  "+ e.getEmpId() + " " + e.getFname() + 
+                    " " + e.getLname() + ": " + e.getEmail());
+                } else {
+                    response = mapper.writeValueAsString("LOGIN SUCCESSFUL - EMPLOYEE ID:  "+ e.getEmpId() + " " + e.getFname() + 
+                    " " + e.getLname() + ": " + e.getEmail());
+                }
+
+                System.out.println();
 
                 // finally we return the response
                 OutputStream os = exchange.getResponseBody();
@@ -122,6 +136,60 @@ public class Controller implements HttpHandler {
             }
         }
     }
+
+    // public void login(HttpExchange exchange) throws IOException, SQLException {
+
+    //     // we create a repo object
+    //     EmployeeRepository repo = new EmployeeRepository();
+
+    //     InputStream is = exchange.getRequestBody();
+
+    //     // then we convert the request to an object and pass it into the repository
+    //     try (Reader reader = new BufferedReader(
+    //             new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+
+    //         int c = 0;
+
+    //         // need to convert input stream to string
+    //         // we'll be using StringBuilder
+    //         StringBuilder sb = new StringBuilder();
+
+    //         // read method from BufferedReader will return -1 when there's no more letters
+    //         // left
+    //         // we keep reading each letter until theres not more left
+    //         while ((c = reader.read()) != -1) {
+    //             sb.append((char) c);
+    //         }
+
+    //         // now we pass the string down to the repository for processing
+
+    //         ObjectMapper mapper = new ObjectMapper();
+
+    //         if (repo.verify(sb.toString())) {
+    //             System.out.println("LOGIN SUCCESSFUL");
+    //             String response = mapper.writeValueAsString("LOGIN SUCCESSFUL");
+
+    //             // finally we return the response
+    //             OutputStream os = exchange.getResponseBody();
+    //             // we send the response header first
+    //             exchange.sendResponseHeaders((200), response.getBytes().length);
+    //             // then we write to the response body and close the connection
+    //             os.write(response.getBytes());
+    //             os.close();
+    //         } else {
+    //             System.out.println("ERROR: INCORRECT EMAIL OR PW...");
+    //             String response = mapper.writeValueAsString("ERROR: INCORRECT EMAIL OR PW...");
+
+    //             // finally we return the response
+    //             OutputStream os = exchange.getResponseBody();
+    //             // we send the response header first
+    //             exchange.sendResponseHeaders((400), response.getBytes().length);
+    //             // then we write to the response body and close the connection
+    //             os.write(response.getBytes());
+    //             os.close();
+    //         }
+    //     }
+    // }
 
     public void getRequest(HttpExchange exchange) throws IOException, SQLException {
 

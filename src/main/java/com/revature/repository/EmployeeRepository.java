@@ -153,68 +153,79 @@ public class EmployeeRepository {
         return listofEmployees;
     }
 
-    public boolean verify(String jsonObj) throws SQLException, JsonParseException, JsonMappingException, IOException {
+    public Employee verify(String jsonObj) throws SQLException, JsonParseException, JsonMappingException, IOException {
 
-        EmployeeRepository repo = new EmployeeRepository();
+
+        //EmployeeRepository repo = new EmployeeRepository();
         ObjectMapper mapper = new ObjectMapper();
 
         // we gather all entries in the DB and match them with the login info
-        List<Employee> currentList = repo.getAllEmployees();
+        List<Employee> currentList = getAllEmployees();
 
         // we convert the jsonObj to an Employee obj
         Employee login = mapper.readValue(jsonObj, Employee.class);
-        System.out.println("The object created for verification: \n" + login.toString());
+        System.out.println("The object created for verification: \n" + login);
 
         // then compare it to all the objects the DB created
         for (Employee employee : currentList) {
+            System.out.println("Verifying...");
             if (employee.getEmail().equals(login.getEmail()) &&
                     employee.getPassword().equals(login.getPassword())) {
                 // if we find a match, we immediately return true
-                return true;
+                //Manager login gets seperate message
+                if (employee.getRole() == 2){
+                System.out.println("LOGIN SUCCESSFUL - MANAGER ID:  "+ employee.getEmpId() + " " + employee.getFname() + 
+                " " + employee.getLname() + ": " + employee.getEmail());
+                return employee;
+            } else {
+                System.out.println("LOGIN SUCCESSFUL - EMPLOYEE ID:  "+ employee.getEmpId() + " " + employee.getFname() + 
+                " " + employee.getLname() + ": " + employee.getEmail());
+                return employee;
             }
-            // else we return false, no match
-            return false;
+
+            }
         }
-        // return false by default
-        return false;
+            return null;
+        
     }
-
-    // here we will save each employee object that's created, locally
-    public void log(String s) throws IOException {
-
-        // the true parameter allows us to append to the end of the log file
-        // we use BufferedWriter and PrintWriter to write to an existing file
-        try (FileWriter fw = new FileWriter("./log.txt", true);
-                BufferedWriter bw = new BufferedWriter(fw);
-                PrintWriter pw = new PrintWriter(bw);)
-
-        {
-            // we add a line break between entries
-            pw.println();
-            pw.println(s.toString());
-        }
-
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // if this block of code executes, then we update the
-        // log and return an http response to the end user
-        exchange.getRequestBody();
-
-        // we create the response in a new variable so we can verify the correct
-        // response length
-        // in the second response header parameter
-        String response1 = "The local log has been updated with the the user: " + s.toString();
-
-        exchange.sendResponseHeaders(200, response1.getBytes().length);
-
-        // we create the stream and write it to the response body
-        OutputStream os = exchange.getResponseBody();
-
-        // we made sure to use response1 so the .length is correct
-        os.write(response1.getBytes());
-        os.close();
-    }
-
 }
+
+
+// here we will save each employee object that's created, locally
+// public void log(String s) throws IOException {
+
+// // the true parameter allows us to append to the end of the log file
+// // we use BufferedWriter and PrintWriter to write to an existing file
+// try (FileWriter fw = new FileWriter("./log.txt", true);
+// BufferedWriter bw = new BufferedWriter(fw);
+// PrintWriter pw = new PrintWriter(bw);)
+
+// {
+// // we add a line break between entries
+// pw.println();
+// pw.println(s.toString());
+// }
+
+// catch (IOException e) {
+// e.printStackTrace();
+// }
+
+// // if this block of code executes, then we update the
+// // log and return an http response to the end user
+// exchange.getRequestBody();
+
+// // we create the response in a new variable so we can verify the correct
+// // response length
+// // in the second response header parameter
+// String response1 = "The local log has been updated with the the user: " +
+// s.toString();
+
+// exchange.sendResponseHeaders(200, response1.getBytes().length);
+
+// // we create the stream and write it to the response body
+// OutputStream os = exchange.getResponseBody();
+
+// // we made sure to use response1 so the .length is correct
+// os.write(response1.getBytes());
+// os.close();
+// }
