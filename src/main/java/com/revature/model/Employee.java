@@ -80,18 +80,12 @@ public class Employee {
     //we override the toString() method to display the details of each emplyee object created
     @Override
     public String toString(){
-        return //"\n\nEmployee ID: " + empId +
+        return "\n\nEmployee ID: " + empId +
                "\nName:  " + fname + " " + lname + 
                "\nAddress: " + address +
                "\nEmail: " + email +
                "\nPassword: " + password +
                "\nRole: " + role;
     }
-
-    
-
-    
-
-
     
 }

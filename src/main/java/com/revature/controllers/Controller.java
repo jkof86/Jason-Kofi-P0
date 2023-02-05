@@ -11,10 +11,14 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.revature.model.Employee;
+import com.revature.model.Ticket;
 import com.revature.repository.EmployeeRepository;
+import com.revature.repository.TicketRepository;
 import com.revature.service.EmployeeService;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -56,8 +60,20 @@ public class Controller implements HttpHandler {
                 }
 
             case "POST":
-                postRequest(exchange);
+            if (exchange.getHttpContext().getPath().equals("/testUrl")) {
+                registration(exchange);
+
+            }
+            else if (exchange.getHttpContext().getPath().equals("/testUrl/submit")) {
+                try {
+                    System.out.println(exchange.getHttpContext().getPath());
+                    submitTicket(exchange);
+                } catch (SQLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 break;
+            }
 
             case "PUT":
                 putRequest(exchange);
@@ -68,6 +84,61 @@ public class Controller implements HttpHandler {
                 break;
         }
     }
+
+    public void submitTicket(HttpExchange exchange) throws JsonParseException, JsonMappingException, IOException, SQLException {
+
+        InputStream is = exchange.getRequestBody();
+
+        // then we convert the request to an object and pass it into the repository
+        try (Reader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+
+            int c = 0;
+
+            // need to convert input stream to string
+            // we'll be using StringBuilder
+            StringBuilder sb = new StringBuilder();
+
+            // read method from BufferedReader will return -1 when there's no more letters
+            // left
+            // we keep reading each letter until theres not more left
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
+            }
+
+            // now we pass the string down to the repository for processing
+            System.out.println("Passing request to repository layer");
+            ObjectMapper mapper = new ObjectMapper();
+            TicketRepository repo = new TicketRepository();
+            Ticket t = repo.storeTicket(sb.toString());
+
+            if (t != null) {
+                //we print a confirmation message
+                String response = mapper.writeValueAsString("TICKET SUBMISSION SUCCESSFUL - "+ t.toString()); 
+                System.out.println();
+
+                // finally we return the response
+                OutputStream os = exchange.getResponseBody();
+                // we send the response header first
+                exchange.sendResponseHeaders((200), response.getBytes().length);
+                // then we write to the response body and close the connection
+                os.write(response.getBytes());
+                os.close();
+            } else {
+                System.out.println("ERROR: INVALID TICKET FORMAT");
+                String response = mapper.writeValueAsString("ERROR: INVALID TICKET FORMAT");
+
+                // finally we return the response
+                OutputStream os = exchange.getResponseBody();
+                // we send the response header first
+                exchange.sendResponseHeaders((400), response.getBytes().length);
+                // then we write to the response body and close the connection
+                os.write(response.getBytes());
+                os.close();
+            }
+        }
+    }
+
 
     public void login(HttpExchange exchange) throws IOException, SQLException {
 
@@ -137,59 +208,6 @@ public class Controller implements HttpHandler {
         }
     }
 
-    // public void login(HttpExchange exchange) throws IOException, SQLException {
-
-    //     // we create a repo object
-    //     EmployeeRepository repo = new EmployeeRepository();
-
-    //     InputStream is = exchange.getRequestBody();
-
-    //     // then we convert the request to an object and pass it into the repository
-    //     try (Reader reader = new BufferedReader(
-    //             new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
-
-    //         int c = 0;
-
-    //         // need to convert input stream to string
-    //         // we'll be using StringBuilder
-    //         StringBuilder sb = new StringBuilder();
-
-    //         // read method from BufferedReader will return -1 when there's no more letters
-    //         // left
-    //         // we keep reading each letter until theres not more left
-    //         while ((c = reader.read()) != -1) {
-    //             sb.append((char) c);
-    //         }
-
-    //         // now we pass the string down to the repository for processing
-
-    //         ObjectMapper mapper = new ObjectMapper();
-
-    //         if (repo.verify(sb.toString())) {
-    //             System.out.println("LOGIN SUCCESSFUL");
-    //             String response = mapper.writeValueAsString("LOGIN SUCCESSFUL");
-
-    //             // finally we return the response
-    //             OutputStream os = exchange.getResponseBody();
-    //             // we send the response header first
-    //             exchange.sendResponseHeaders((200), response.getBytes().length);
-    //             // then we write to the response body and close the connection
-    //             os.write(response.getBytes());
-    //             os.close();
-    //         } else {
-    //             System.out.println("ERROR: INCORRECT EMAIL OR PW...");
-    //             String response = mapper.writeValueAsString("ERROR: INCORRECT EMAIL OR PW...");
-
-    //             // finally we return the response
-    //             OutputStream os = exchange.getResponseBody();
-    //             // we send the response header first
-    //             exchange.sendResponseHeaders((400), response.getBytes().length);
-    //             // then we write to the response body and close the connection
-    //             os.write(response.getBytes());
-    //             os.close();
-    //         }
-    //     }
-    // }
 
     public void getRequest(HttpExchange exchange) throws IOException, SQLException {
 
@@ -216,7 +234,7 @@ public class Controller implements HttpHandler {
 
     }
 
-    public void postRequest(HttpExchange exchange) throws IOException {
+    public void registration(HttpExchange exchange) throws IOException {
 
         // we'll send a response once we reach the repository level
         // therefore we need to pass down the exchange

@@ -58,6 +58,7 @@ public final class App {
 
         server.createContext("/testUrl", new Controller());
         server.createContext("/testUrl/login", new Controller());
+        server.createContext("/testUrl/submit", new Controller());
 
         server.start(); //starts backend    
         System.out.println("Local server running on port: " + port1);
