@@ -6,7 +6,7 @@ public class Ticket {
     private double amount = 0;
     private String desc;
     private String status = "pending";
-    private int empid;
+    private int empId;
 
 
     public int getId() {
@@ -34,16 +34,16 @@ public class Ticket {
         this.status = status;
     }
     public int getEmpId() {
-        return empid;
+        return empId;
     }
-    public void setEmpId() {
+    public void setEmpId(int empId) {
         
-        this.empid = empid;
+        this.empId = empId;
     }
 
     @Override
     public String toString() {
-        return "Ticket [id=" + id + ", amount=" + amount + ", desc=" + desc + ", status=" + status + ", empid=" + empid
+        return "Ticket [id=" + id + ", amount=" + amount + ", desc=" + desc + ", status=" + status + ", empid=" + empId
                 + "]";
     }
     
