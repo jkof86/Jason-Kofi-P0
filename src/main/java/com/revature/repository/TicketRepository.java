@@ -20,17 +20,68 @@ import com.sun.net.httpserver.HttpExchange;
 public class TicketRepository {
 
     private HttpExchange exchange;
-    private Ticket readValue;
 
-    // we need an empty constructor
-    public TicketRepository() {
+    // we need to be able to pull a ticket from the DB by its ID
+    public Ticket getTicket(String jsonObj) throws SQLException {
+        // first we need to convert the jsonObj to a Ticket obj
+        // we create a new mapper and Ticket obj
+
+        ObjectMapper mapper = new ObjectMapper();
+        Ticket t = new Ticket();
+
+        // then we convert the jsonObj to a Ticket using the mapper class
+        try {
+            t = mapper.readValue(jsonObj, Ticket.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("\nTicket object created.");
+        System.out.println(t.toString());
+
+        // this is the sql query to select the given ticket
+        String sql = "select * from request where requestid = (?)";
+
+        // we execute the above query
+        try (Connection con = ConnectionUtil.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            
+            ps.setInt(1, t.getId());
+
+            ResultSet rs = ps.executeQuery();
+
+            Ticket t2 = new Ticket();
+            
+            // then we copy the resulting tickets data to a Ticket obj
+            while (rs.next()) {
+                // for testing
+                System.out.println("\nGathering data...");
+
+                t2.setId(rs.getInt("requestid"));
+                t2.setDesc(rs.getString("description"));
+                t2.setStatus(rs.getString("status"));
+                t2.setEmpId(rs.getInt("empid"));
+                t2.setAmount(rs.getDouble("amount"));
+            }
+
+
+            // finally we return the Ticket obj
+            System.out.println(t2.toString());
+            return t2;
+        }
 
     }
 
     // mvp 6 - we ned to grab all the pending tickets for managers to approve/deny
     public List<Ticket> getAllTickets() throws SQLException {
 
-        //this is the sql statement to gather all pending tickets
+        // this is the sql statement to gather all pending tickets
         String sql = "select * from request where status = 'pending'";
         List<Ticket> listofTickets = new ArrayList();
 
@@ -57,6 +108,76 @@ public class TicketRepository {
 
     }
 
+    public Ticket process(String jsonObj) throws SQLException {
+
+        // first we need to convert the jsonObj to a Ticket obj
+        // first we create a new mapper and Ticket obj
+        ObjectMapper mapper = new ObjectMapper();
+        Ticket t = new Ticket();
+
+        // System.out.println("test");
+        // then we convert the jsonObj to a Ticket using the mapper class
+        try {
+            t = mapper.readValue(jsonObj, Ticket.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("\nTicket object created.");
+        System.out.println(t.toString());
+
+        // if the manager has sent an approval request then we set the status of the
+        // object to "approved"
+        if (t.getStatus().equals("approved")) {
+            t.setStatus("approved");
+        }
+        // if the manager denies, we set the status to "denied"
+        else if (t.getStatus().equals("denied")) {
+            t.setStatus("denied");
+        }
+        // if the request is netiher "approved" or "denied" we return null;
+        else {
+            return null;
+        }
+
+        // this sql query will require a PreparedStatement and an executeUpdate() for
+        // confirmation
+        String sql = "UPDATE request set status = (?) where requestid = (?)";
+
+        try (Connection con = ConnectionUtil.getConnection()) {
+
+            // here we copy the status of the Ticket obj over to the DB
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, t.getStatus());
+            ps.setInt(2, t.getId());
+            // if the statement executes successfully, we return the object and a
+            // confirmation in the response body
+
+            // executeUpdate() returns an int for the amount of rows affected, 0 for nothing
+            // returned
+
+            int result = ps.executeUpdate();
+            // testing result return value
+            System.out.println(result);
+
+            // if the operation is successful we return the ticket object
+            // else we return null
+            if (result > 0) {
+                System.out.println("TICKET PROCESSED SUCCESSFULLY");
+                System.out.println(t.toString());
+                return t;
+            } else {
+                return null;
+            }
+        }
+    }
+
     // we create a method to check the validity of a request and store it in DB
     public Ticket storeTicket(String jsonObj)
             throws SQLException, JsonParseException, JsonMappingException, IOException {
@@ -75,7 +196,6 @@ public class TicketRepository {
         if ((t.getAmount() <= 0) || t.getDesc() == null) {
             return null;
         }
-
         // if the ticket is valid, we store it in the DB with pending statusd by default
         else {
 
@@ -106,9 +226,7 @@ public class TicketRepository {
                 } else {
                     return null;
                 }
-
             }
         }
     }
-
 }

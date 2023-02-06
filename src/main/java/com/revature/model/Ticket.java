@@ -8,6 +8,11 @@ public class Ticket {
     private String status = "pending";
     private int empId;
 
+    //we need a constructor
+    public Ticket () {
+
+    }
+
 
     public int getId() {
         return id;
