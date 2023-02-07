@@ -109,9 +109,23 @@ public class TicketRepository {
     }
 
     // mvp 8 - finally we need employees to get a list of prior tickets
-    public List<Ticket> getPastTickets(Employee e) throws SQLException {
+    public List<Ticket> getPastTickets(String jsonObj) throws SQLException {
 
         Ticket t = new Ticket();
+        ObjectMapper mapper = new ObjectMapper();
+         try {
+            t = mapper.readValue(jsonObj, Ticket.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         // this is the sql statement to gather all pending tickets
         String sql = "select * from request r join employee e on r.empid = e.empid where r.empid = (?) and status = (?)";
         
@@ -119,8 +133,8 @@ public class TicketRepository {
 
         try (Connection con = ConnectionUtil.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, e.getEmpId());
-            ps.setString(2, "pending");
+            ps.setInt(1, t.getEmpId());
+            ps.setString(2, t.getStatus());
 
             ResultSet rs = ps.executeQuery();
 

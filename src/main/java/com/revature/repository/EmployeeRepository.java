@@ -122,20 +122,20 @@ public class EmployeeRepository {
             Statement s = con.createStatement(0, 0);
             ResultSet rs = s.executeQuery(sql);
 
-            while (rs.next()) {
-                Employee e = new Employee();
-                e.setEmpId(rs.getInt(1));
-                e.setFname(rs.getString(2));
-                e.setLname(rs.getString(3));
-                e.setAddress(rs.getString(4));
-                e.setEmail(rs.getString(5));
-                e.setPassword(rs.getString(6));
-                e.setRole(rs.getInt(7));
+                while (rs.next()) {
+                    Employee e = new Employee();
+                    e.setEmpId(rs.getInt(1));
+                    e.setFname(rs.getString(2));
+                    e.setLname(rs.getString(3));
+                    e.setAddress(rs.getString(4));
+                    e.setEmail(rs.getString(5));
+                    e.setPassword(rs.getString(6));
+                    e.setRole(rs.getInt(7));
 
-                listofEmployees.add(e);
-                // for testing
-                System.out.println("Gathering data...");
-            }
+                    listofEmployees.add(e);
+                    // for testing
+                    System.out.println("Gathering data...");
+                }
         }
         return listofEmployees;
     }

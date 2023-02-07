@@ -72,6 +72,14 @@ public class Controller implements HttpHandler {
                     }
                     break;
                 }
+             else if (exchange.getHttpContext().getPath().equals("/testUrl/pastTickets")) {
+                System.out.println(exchange.getHttpContext().getPath());
+
+                // the manager logs in with credentials
+                employeeTickets(exchange);
+                // then proceeds to getting a pending ticket list
+                break;
+            }
 
             case "POST":
                 if (exchange.getHttpContext().getPath().equals("/testUrl")) {
@@ -106,6 +114,57 @@ public class Controller implements HttpHandler {
                 otherRequest(exchange);
                 break;
         }
+    }
+
+    //here we send back a list of tickets based on the empid and filter by status
+    public void employeeTickets(HttpExchange exchange) throws IOException {
+
+        String response;
+        InputStream is = exchange.getRequestBody();
+
+        // then we convert the request to an object and pass it into the repository
+        try (Reader reader = new BufferedReader(
+                new InputStreamReader(is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+
+            int c = 0;
+
+            // need to convert input stream to string
+            // we'll be using StringBuilder
+            StringBuilder sb = new StringBuilder();
+
+            // read method from BufferedReader will return -1 when there's no more letters
+            // left
+            // we keep reading each letter until theres not more left
+            while ((c = reader.read()) != -1) {
+                sb.append((char) c);
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            TicketRepository trepo = new TicketRepository();
+            List<Ticket> listofTickets = new ArrayList<Ticket>();
+            try {
+                listofTickets = trepo.getPastTickets(sb.toString());
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println("List of past tickets: " + listofTickets.toString());
+
+            String pastTickets = listofTickets.toString();
+            
+
+           response = mapper.writeValueAsString( pastTickets);
+        }
+
+        System.out.println();
+
+        // finally we return the response
+        OutputStream os = exchange.getResponseBody();
+        // we send the response header first
+        exchange.sendResponseHeaders((200), response.getBytes().length);
+        // then we write to the response body and close the connection
+        os.write(response.getBytes());
+        os.close();
     }
 
     public void processTicket(HttpExchange exchange) throws IOException, SQLException {
@@ -263,8 +322,8 @@ public class Controller implements HttpHandler {
                 // which is a current list of all pending tickets
                 String welcomeManager = "LOGIN SUCCESSFUL - MANAGER ID:  " + e.getEmpId() + " " + e.getFname() +
                         " " + e.getLname() + ": " + e.getEmail();
-                String welcomeEmployee = "LOGIN SUCCESSFUL - EMPLOYEE ID:  " + e.getEmpId() + " " + e.getFname() +
-                        " " + e.getLname() + ": " + e.getEmail();
+                // String welcomeEmployee = "LOGIN SUCCESSFUL - EMPLOYEE ID:  " + e.getEmpId() + " " + e.getFname() +
+                //         " " + e.getLname() + ": " + e.getEmail();
 
                 // we print a manager or employee welcome based on the role id
                 // role 1 employee, role 2 manager
@@ -281,27 +340,7 @@ public class Controller implements HttpHandler {
                     // we send a response with the managers welcome and a list of pending tickets
                     response = mapper.writeValueAsString(welcomeManager + pendingTickets);
                 } 
-                //if the login is an employee we send back a list of their past tickets
-                else {
-                    TicketRepository trepo = new TicketRepository();
-                    List<Ticket> listofTickets = new ArrayList<Ticket>();
-                    listofTickets = trepo.getPastTickets(e);
-                    System.out.println("List of past tickets: " + listofTickets.toString());
-
-                    String pastTickets = listofTickets.toString();
-
-                    response = mapper.writeValueAsString(welcomeEmployee + pastTickets);
-                }
-
-                System.out.println();
-
-                // finally we return the response
-                OutputStream os = exchange.getResponseBody();
-                // we send the response header first
-                exchange.sendResponseHeaders((200), response.getBytes().length);
-                // then we write to the response body and close the connection
-                os.write(response.getBytes());
-                os.close();
+                
             } else {
                 System.out.println("ERROR: INCORRECT EMAIL OR PW...");
                 String response = mapper.writeValueAsString("ERROR: INCORRECT EMAIL OR PW...");
