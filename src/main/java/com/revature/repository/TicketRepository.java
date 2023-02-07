@@ -13,6 +13,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.revature.model.Employee;
 import com.revature.model.Ticket;
 import com.revature.utils.ConnectionUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -78,7 +79,6 @@ public class TicketRepository {
 
     }
 
-    // mvp 6 - we ned to grab all the pending tickets for managers to approve/deny
     public List<Ticket> getAllTickets() throws SQLException {
 
         // this is the sql statement to gather all pending tickets
@@ -91,6 +91,41 @@ public class TicketRepository {
 
             while (rs.next()) {
                 Ticket t = new Ticket();
+                t.setId(rs.getInt(1));
+                t.setDesc(rs.getString(2));
+                t.setStatus(rs.getString(3));
+                t.setEmpId(rs.getInt(4));
+                t.setAmount(rs.getDouble(5));
+
+                listofTickets.add(t);
+                // for testing
+                System.out.println("\nGathering data...");
+            }
+
+        }
+
+        return listofTickets;
+
+    }
+
+    // mvp 8 - finally we need employees to get a list of prior tickets
+    public List<Ticket> getPastTickets(Employee e) throws SQLException {
+
+        Ticket t = new Ticket();
+        // this is the sql statement to gather all pending tickets
+        String sql = "select * from request r join employee e on r.empid = e.empid where r.empid = (?) and status = (?)";
+        
+        List<Ticket> listofTickets = new ArrayList();
+
+        try (Connection con = ConnectionUtil.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, e.getEmpId());
+            ps.setString(2, "pending");
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                
                 t.setId(rs.getInt(1));
                 t.setDesc(rs.getString(2));
                 t.setStatus(rs.getString(3));

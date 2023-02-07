@@ -140,18 +140,31 @@ public class EmployeeRepository {
         return listofEmployees;
     }
 
-    public Employee verify(String jsonObj) throws SQLException, JsonParseException, JsonMappingException, IOException {
+    public Employee verify(String jsonObj) throws SQLException {
 
         // EmployeeRepository repo = new EmployeeRepository();
         ObjectMapper mapper = new ObjectMapper();
+        Employee login = new Employee();
 
         // we gather all entries in the DB and match them with the login info
         List<Employee> currentList = getAllEmployees();
 
-        System.out.println(currentList.toString());
+        //System.out.println(currentList.toString());
 
         // we convert the jsonObj to an Employee obj
-        Employee login = mapper.readValue(jsonObj, Employee.class);
+    
+        try {
+            login = mapper.readValue(jsonObj, Employee.class);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         System.out.println("The object created for verification: \n" + login);
 
         // then compare it to all the objects the DB created

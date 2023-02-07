@@ -280,8 +280,17 @@ public class Controller implements HttpHandler {
 
                     // we send a response with the managers welcome and a list of pending tickets
                     response = mapper.writeValueAsString(welcomeManager + pendingTickets);
-                } else {
-                    response = mapper.writeValueAsString(welcomeEmployee);
+                } 
+                //if the login is an employee we send back a list of their past tickets
+                else {
+                    TicketRepository trepo = new TicketRepository();
+                    List<Ticket> listofTickets = new ArrayList<Ticket>();
+                    listofTickets = trepo.getPastTickets(e);
+                    System.out.println("List of past tickets: " + listofTickets.toString());
+
+                    String pastTickets = listofTickets.toString();
+
+                    response = mapper.writeValueAsString(welcomeEmployee + pastTickets);
                 }
 
                 System.out.println();
