@@ -119,7 +119,7 @@ public class EmployeeRepository {
         List<Employee> listofEmployees = new ArrayList();
 
         try (Connection con = ConnectionUtil.getConnection()) {
-            Statement s = con.createStatement(0, 0);
+            Statement s = con.createStatement();
             ResultSet rs = s.executeQuery(sql);
 
                 while (rs.next()) {

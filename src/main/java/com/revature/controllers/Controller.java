@@ -71,15 +71,14 @@ public class Controller implements HttpHandler {
                         e.printStackTrace();
                     }
                     break;
-                }
-             else if (exchange.getHttpContext().getPath().equals("/testUrl/pastTickets")) {
-                System.out.println(exchange.getHttpContext().getPath());
+                } else if (exchange.getHttpContext().getPath().equals("/testUrl/pastTickets")) {
+                    System.out.println(exchange.getHttpContext().getPath());
 
-                // the manager logs in with credentials
-                employeeTickets(exchange);
-                // then proceeds to getting a pending ticket list
-                break;
-            }
+                    // the manager logs in with credentials
+                    employeeTickets(exchange);
+                    // then proceeds to getting a pending ticket list
+                    break;
+                }
 
             case "POST":
                 if (exchange.getHttpContext().getPath().equals("/testUrl")) {
@@ -116,7 +115,20 @@ public class Controller implements HttpHandler {
         }
     }
 
-    //here we send back a list of tickets based on the empid and filter by status
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    // here we send back a list of tickets based on the empid and filter by status
     public void employeeTickets(HttpExchange exchange) throws IOException {
 
         String response;
@@ -151,9 +163,8 @@ public class Controller implements HttpHandler {
             System.out.println("List of past tickets: " + listofTickets.toString());
 
             String pastTickets = listofTickets.toString();
-            
 
-           response = mapper.writeValueAsString( pastTickets);
+            response = mapper.writeValueAsString(pastTickets);
         }
 
         System.out.println();
@@ -166,6 +177,29 @@ public class Controller implements HttpHandler {
         os.write(response.getBytes());
         os.close();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void processTicket(HttpExchange exchange) throws IOException, SQLException {
         ObjectMapper mapper = new ObjectMapper();
@@ -195,7 +229,7 @@ public class Controller implements HttpHandler {
             System.out.println("Passing request to repository layer");
             t = repo.process(sb.toString());
 
-            //If we have a valid ticket processing we continue as normal
+            // If we have a valid ticket processing we continue as normal
             if (t != null) {
 
                 // then we locate the updated ticket
@@ -226,6 +260,24 @@ public class Controller implements HttpHandler {
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void submitTicket(HttpExchange exchange)
             throws JsonParseException, JsonMappingException, IOException, SQLException {
@@ -286,10 +338,24 @@ public class Controller implements HttpHandler {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void managerLogin(HttpExchange exchange) throws IOException, SQLException {
         // we create a repo object
         EmployeeRepository repo = new EmployeeRepository();
-
         InputStream is = exchange.getRequestBody();
 
         // then we convert the request to an object and pass it into the repository
@@ -312,18 +378,17 @@ public class Controller implements HttpHandler {
             // now we pass the string down to the repository for processing
 
             ObjectMapper mapper = new ObjectMapper();
-
             Employee e = repo.verify(sb.toString());
 
             if (e != null) {
                 // System.out.println("LOGIN SUCCESSFUL");
-                String response;
                 // we add a new response for the manager
                 // which is a current list of all pending tickets
                 String welcomeManager = "LOGIN SUCCESSFUL - MANAGER ID:  " + e.getEmpId() + " " + e.getFname() +
                         " " + e.getLname() + ": " + e.getEmail();
-                // String welcomeEmployee = "LOGIN SUCCESSFUL - EMPLOYEE ID:  " + e.getEmpId() + " " + e.getFname() +
-                //         " " + e.getLname() + ": " + e.getEmail();
+                // String welcomeEmployee = "LOGIN SUCCESSFUL - EMPLOYEE ID: " + e.getEmpId() +
+                // " " + e.getFname() +
+                // " " + e.getLname() + ": " + e.getEmail();
 
                 // we print a manager or employee welcome based on the role id
                 // role 1 employee, role 2 manager
@@ -338,9 +403,17 @@ public class Controller implements HttpHandler {
                     String pendingTickets = listofTickets.toString();
 
                     // we send a response with the managers welcome and a list of pending tickets
-                    response = mapper.writeValueAsString(welcomeManager + pendingTickets);
-                } 
-                
+                    String response = mapper.writeValueAsString(welcomeManager + pendingTickets);
+                    // finally we return the response
+                    OutputStream os = exchange.getResponseBody();
+                    // we send the response header first
+                    exchange.sendResponseHeaders((400), response.getBytes().length);
+                    // then we write to the response body and close the connection
+                    os.write(response.getBytes());
+                    os.close();
+
+                }
+
             } else {
                 System.out.println("ERROR: INCORRECT EMAIL OR PW...");
                 String response = mapper.writeValueAsString("ERROR: INCORRECT EMAIL OR PW...");
@@ -355,6 +428,15 @@ public class Controller implements HttpHandler {
             }
         }
     }
+
+
+
+
+
+
+
+
+
 
     public void login(HttpExchange exchange) throws IOException, SQLException {
 
@@ -426,6 +508,22 @@ public class Controller implements HttpHandler {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void getRequest(HttpExchange exchange) throws IOException, SQLException {
 
         // we create a repo object
@@ -450,6 +548,20 @@ public class Controller implements HttpHandler {
         os.close(); // make sure to close the output stream
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void registration(HttpExchange exchange) throws IOException {
 
@@ -490,6 +602,22 @@ public class Controller implements HttpHandler {
         es.register(sb.toString());
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void putRequest(HttpExchange exchange) throws IOException {
 

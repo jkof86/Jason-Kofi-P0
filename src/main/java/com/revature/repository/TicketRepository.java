@@ -52,13 +52,13 @@ public class TicketRepository {
         // we execute the above query
         try (Connection con = ConnectionUtil.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
-            
+
             ps.setInt(1, t.getId());
 
             ResultSet rs = ps.executeQuery();
 
             Ticket t2 = new Ticket();
-            
+
             // then we copy the resulting tickets data to a Ticket obj
             while (rs.next()) {
                 // for testing
@@ -71,7 +71,6 @@ public class TicketRepository {
                 t2.setAmount(rs.getDouble("amount"));
             }
 
-
             // finally we return the Ticket obj
             System.out.println(t2.toString());
             return t2;
@@ -83,10 +82,10 @@ public class TicketRepository {
 
         // this is the sql statement to gather all pending tickets
         String sql = "select * from request where status = 'pending'";
-        List<Ticket> listofTickets = new ArrayList();
+        List<Ticket> listofTickets = new ArrayList<Ticket>();
 
         try (Connection con = ConnectionUtil.getConnection()) {
-            Statement s = con.createStatement(0, 0);
+            Statement s = con.createStatement();
             ResultSet rs = s.executeQuery(sql);
 
             while (rs.next()) {
@@ -110,10 +109,9 @@ public class TicketRepository {
 
     // mvp 8 - finally we need employees to get a list of prior tickets
     public List<Ticket> getPastTickets(String jsonObj) throws SQLException {
-
         Ticket t = new Ticket();
         ObjectMapper mapper = new ObjectMapper();
-         try {
+        try {
             t = mapper.readValue(jsonObj, Ticket.class);
         } catch (JsonParseException e) {
             // TODO Auto-generated catch block
@@ -128,8 +126,8 @@ public class TicketRepository {
 
         // this is the sql statement to gather all pending tickets
         String sql = "select * from request r join employee e on r.empid = e.empid where r.empid = (?) and status = (?)";
-        
-        List<Ticket> listofTickets = new ArrayList();
+
+        List<Ticket> listofTickets = new ArrayList<Ticket>();
 
         try (Connection con = ConnectionUtil.getConnection()) {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -139,14 +137,17 @@ public class TicketRepository {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                
-                t.setId(rs.getInt(1));
-                t.setDesc(rs.getString(2));
-                t.setStatus(rs.getString(3));
-                t.setEmpId(rs.getInt(4));
-                t.setAmount(rs.getDouble(5));
+                // we need to create a new ticket for each iteration
+                Ticket t2 = new Ticket();
+                t2.setId(rs.getInt(1));
+                t2.setDesc(rs.getString(2));
+                t2.setStatus(rs.getString(3));
+                t2.setEmpId(rs.getInt(4));
+                t2.setAmount(rs.getDouble(5));
 
-                listofTickets.add(t);
+                // then we add each new ticket to the list
+                listofTickets.add(t2);
+
                 // for testing
                 System.out.println("\nGathering data...");
             }
