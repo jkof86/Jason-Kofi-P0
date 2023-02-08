@@ -10,15 +10,16 @@ public class Employee {
     private String email;
     private String password;
     private int role;
-    
-    //this constructor caused issues with the logic, so we'll remove for now
-    // public Employee(int empId, String fname, String lname, String address, String email, String password){
-    //     this.empId = empId;
-    //     this.fname = fname;
-    //     this.lname = lname;
-    //     this.address = address;
-    //     this.email = email;
-    //     this.password = password;
+
+    // this constructor caused issues with the logic, so we'll remove for now
+    // public Employee(int empId, String fname, String lname, String address, String
+    // email, String password){
+    // this.empId = empId;
+    // this.fname = fname;
+    // this.lname = lname;
+    // this.address = address;
+    // this.email = email;
+    // this.password = password;
     // }
 
     public int getRole() {
@@ -77,15 +78,16 @@ public class Employee {
         this.password = password;
     }
 
-    //we override the toString() method to display the details of each emplyee object created
+    // we override the toString() method to display the details of each emplyee
+    // object created
     @Override
-    public String toString(){
+    public String toString() {
         return "\n\nEmployee ID: " + empId +
-               "\nName:  " + fname + " " + lname + 
-               "\nAddress: " + address +
-               "\nEmail: " + email +
-               "\nPassword: " + password +
-               "\nRole: " + role;
+                "\nName:  " + fname + " " + lname +
+                "\nAddress: " + address +
+                "\nEmail: " + email +
+                "\nPassword: " + password +
+                "\nRole: " + role;
     }
-    
+
 }

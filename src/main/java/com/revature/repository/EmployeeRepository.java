@@ -43,7 +43,7 @@ public class EmployeeRepository {
         // grab all the employee objects
         // and compare fname, lname, and email
         List<Employee> currentList = getAllEmployees();
-        
+
         // this is the String we use to execute sql statements
         String sql = "insert into employee (fname, lname, address, email, pw, roleid) values (?,?,?,?,?,?)";
         System.out.println("Checking for existing user...");
@@ -72,7 +72,7 @@ public class EmployeeRepository {
             System.out.println("Duplicate DB Entry was found...");
             return false;
         }
-        
+
         System.out.println("Accessing DB...");
 
         try (Connection con = ConnectionUtil.getConnection()) {
@@ -122,20 +122,20 @@ public class EmployeeRepository {
             Statement s = con.createStatement();
             ResultSet rs = s.executeQuery(sql);
 
-                while (rs.next()) {
-                    Employee e = new Employee();
-                    e.setEmpId(rs.getInt(1));
-                    e.setFname(rs.getString(2));
-                    e.setLname(rs.getString(3));
-                    e.setAddress(rs.getString(4));
-                    e.setEmail(rs.getString(5));
-                    e.setPassword(rs.getString(6));
-                    e.setRole(rs.getInt(7));
+            while (rs.next()) {
+                Employee e = new Employee();
+                e.setEmpId(rs.getInt(1));
+                e.setFname(rs.getString(2));
+                e.setLname(rs.getString(3));
+                e.setAddress(rs.getString(4));
+                e.setEmail(rs.getString(5));
+                e.setPassword(rs.getString(6));
+                e.setRole(rs.getInt(7));
 
-                    listofEmployees.add(e);
-                    // for testing
-                    System.out.println("Gathering data...");
-                }
+                listofEmployees.add(e);
+                // for testing
+                System.out.println("Gathering data...");
+            }
         }
         return listofEmployees;
     }
@@ -149,10 +149,10 @@ public class EmployeeRepository {
         // we gather all entries in the DB and match them with the login info
         List<Employee> currentList = getAllEmployees();
 
-        //System.out.println(currentList.toString());
+        // System.out.println(currentList.toString());
 
         // we convert the jsonObj to an Employee obj
-    
+
         try {
             login = mapper.readValue(jsonObj, Employee.class);
         } catch (JsonParseException e) {

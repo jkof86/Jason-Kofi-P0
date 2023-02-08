@@ -1,7 +1,7 @@
 package com.revature.repository;
 
 public interface Dao<T> {
-    //CRUD operationa
+    // CRUD operationa
     // create
     // read
     // update
@@ -11,5 +11,5 @@ public interface Dao<T> {
     // public List<T> read();
     // public void update(T);
     // public void delete(T);
-    
+
 }

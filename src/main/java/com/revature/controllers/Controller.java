@@ -25,7 +25,7 @@ public class Controller implements HttpHandler {
                     try {
                         System.out.println(exchange.getHttpContext().getPath());
                         EmployeeService es = new EmployeeService(exchange);
-                        //this returns a full list of employees
+                        // this returns a full list of employees
                         es.getEmployees(exchange);
                     } catch (SQLException e) {
                         // TODO Auto-generated catch block
@@ -39,7 +39,7 @@ public class Controller implements HttpHandler {
                     try {
                         System.out.println(exchange.getHttpContext().getPath());
                         EmployeeService es = new EmployeeService(exchange);
-                        //this is the normal login
+                        // this is the normal login
                         es.login(exchange);
                     } catch (SQLException e) {
                         // TODO Auto-generated catch block
@@ -64,7 +64,7 @@ public class Controller implements HttpHandler {
                     System.out.println(exchange.getHttpContext().getPath());
                     TicketService ts = new TicketService(exchange);
 
-                    //this is where an employee can view their past tickets
+                    // this is where an employee can view their past tickets
                     ts.employeeTickets(exchange);
                     // then proceeds to getting a pending ticket list
                     break;
@@ -73,10 +73,10 @@ public class Controller implements HttpHandler {
             case "POST":
                 if (exchange.getHttpContext().getPath().equals("/testUrl")) {
                     EmployeeService es = new EmployeeService(exchange);
-                    //this will register a new user
-                    //this was the first method implemented, so it acts a little differently
-                    //here we need to convert the exchange to a string from the controller 
-                    //before passing it to the service layer
+                    // this will register a new user
+                    // this was the first method implemented, so it acts a little differently
+                    // here we need to convert the exchange to a string from the controller
+                    // before passing it to the service layer
                     String sb = EmployeeService.convertRequest(exchange);
                     es.register(sb);
 
@@ -84,7 +84,7 @@ public class Controller implements HttpHandler {
                     try {
                         System.out.println(exchange.getHttpContext().getPath());
                         TicketService ts = new TicketService(exchange);
-                        //this is where we submit a new ticket
+                        // this is where we submit a new ticket
                         ts.submitTicket(exchange);
                     } catch (SQLException e) {
                         // TODO Auto-generated catch block
@@ -100,7 +100,7 @@ public class Controller implements HttpHandler {
                         TicketService ts = new TicketService(exchange);
 
                         // here we allow the manager to approve or deny a pending ticket
-                       ts.processTicket(exchange);
+                        ts.processTicket(exchange);
                     } catch (SQLException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -113,49 +113,6 @@ public class Controller implements HttpHandler {
                 break;
         }
     }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-    // public void registration(HttpExchange exchange) throws IOException {
-
-    //     // we'll send a response once we reach the repository level
-    //     // therefore we need to pass down the exchange
-    //     EmployeeService es = new EmployeeService(exchange);
-
-    //     String sb = convertRequest(exchange);
-
-    //     // for now, let's send the new string to the service level for registration
-
-    //     // print to console for testing
-    //     System.out.println("Exchange passed down to service level...");
-    //     // for now, let's send the new string to the service level for registration
-    //     es.register(sb.toString());
-
-    // }
-
-
 
     public void otherRequest(HttpExchange exchange) throws IOException {
 

@@ -36,25 +36,24 @@ public class TicketService {
         String response;
         String sb = EmployeeService.convertRequest(exchange);
 
-            ObjectMapper mapper = new ObjectMapper();
-            TicketRepository trepo = new TicketRepository();
-            List<Ticket> listofTickets = new ArrayList<Ticket>();
-            try {
-                listofTickets = trepo.getPastTickets(sb.toString());
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            System.out.println("List of past tickets: " + listofTickets.toString());
-
-            String pastTickets = listofTickets.toString();
-
-            response = mapper.writeValueAsString(pastTickets);
-            EmployeeService.sendResponse(exchange, response);
+        ObjectMapper mapper = new ObjectMapper();
+        TicketRepository trepo = new TicketRepository();
+        List<Ticket> listofTickets = new ArrayList<Ticket>();
+        try {
+            listofTickets = trepo.getPastTickets(sb.toString());
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+        System.out.println("List of past tickets: " + listofTickets.toString());
 
+        String pastTickets = listofTickets.toString();
 
-        public void submitTicket(HttpExchange exchange)
+        response = mapper.writeValueAsString(pastTickets);
+        EmployeeService.sendResponse(exchange, response);
+    }
+
+    public void submitTicket(HttpExchange exchange)
             throws JsonParseException, JsonMappingException, IOException, SQLException {
         ObjectMapper mapper = new ObjectMapper();
         TicketRepository repo = new TicketRepository();
@@ -62,59 +61,58 @@ public class TicketService {
 
         String sb = EmployeeService.convertRequest(exchange);
 
-            // now we pass the string down to the repository for processing
-            System.out.println("Passing request to repository layer");
-            System.out.println(sb.toString());
-            t = repo.storeTicket(sb.toString());
+        // now we pass the string down to the repository for processing
+        System.out.println("Passing request to repository layer");
+        System.out.println(sb.toString());
+        t = repo.storeTicket(sb.toString());
 
-            if (t != null) {
-                // we print a confirmation message
-                // ObjectMapper mapper = new ObjectMapper();
-                String response = mapper.writeValueAsString("TICKET SUBMISSION SUCCESSFUL - " + t.toString());
-                System.out.println();
+        if (t != null) {
+            // we print a confirmation message
+            // ObjectMapper mapper = new ObjectMapper();
+            String response = mapper.writeValueAsString("TICKET SUBMISSION SUCCESSFUL - " + t.toString());
+            System.out.println();
 
-                // finally we return the response
-                EmployeeService.sendResponse(exchange, response);
-            } else {
-                // ObjectMapper mapper = new ObjectMapper();
-                System.out.println("ERROR: INVALID TICKET FORMAT");
-                String response = mapper.writeValueAsString("ERROR: INVALID TICKET FORMAT");
+            // finally we return the response
+            EmployeeService.sendResponse(exchange, response);
+        } else {
+            // ObjectMapper mapper = new ObjectMapper();
+            System.out.println("ERROR: INVALID TICKET FORMAT");
+            String response = mapper.writeValueAsString("ERROR: INVALID TICKET FORMAT");
 
-                // finally we return the response
-                EmployeeService.sendResponse(exchange, response);
-            }
+            // finally we return the response
+            EmployeeService.sendResponse(exchange, response);
         }
+    }
 
+    public void processTicket(HttpExchange exchange) throws IOException, SQLException {
+        ObjectMapper mapper = new ObjectMapper();
+        TicketRepository repo = new TicketRepository();
+        Ticket t = new Ticket();
 
-        public void processTicket(HttpExchange exchange) throws IOException, SQLException {
-            ObjectMapper mapper = new ObjectMapper();
-            TicketRepository repo = new TicketRepository();
-            Ticket t = new Ticket();
-    
-            String sb = EmployeeService.convertRequest(exchange);
-    
-                // now we pass the string down to the repository for processing
-                System.out.println("Passing request to repository layer");
-                t = repo.process(sb.toString());
-    
-                // If we have a valid ticket processing we continue as normal
-                if (t != null) {
-    
-                    // then we locate the updated ticket
-                    t = repo.getTicket(sb.toString());
-    
-                    // we print a confirmation message
-                    String response = mapper.writeValueAsString("TICKET PROCESSED SUCCESSFUL - " + t.toString());
-                    System.out.println();
-    
-                    // finally we return the response
-                    EmployeeService.sendResponse(exchange, response);
-                } else {
-                    System.out.println("ERROR: INVALID TICKET PROCESSING REQUEST");
-                    String response = mapper.writeValueAsString("ERROR: INVALID TICKET PROCESSING REQUEST");
-    
-                    // finally we return the response
-                    EmployeeService.sendResponse(exchange, response);
-                }
-            }
+        String sb = EmployeeService.convertRequest(exchange);
+
+        // now we pass the string down to the repository for processing
+        System.out.println("Passing request to repository layer");
+        t = repo.process(sb.toString());
+
+        // If we have a valid ticket processing we continue as normal
+        if (t != null) {
+
+            // then we locate the updated ticket
+            t = repo.getTicket(sb.toString());
+
+            // we print a confirmation message
+            String response = mapper.writeValueAsString("TICKET PROCESSED SUCCESSFUL - " + t.toString());
+            System.out.println();
+
+            // finally we return the response
+            EmployeeService.sendResponse(exchange, response);
+        } else {
+            System.out.println("ERROR: INVALID TICKET PROCESSING REQUEST");
+            String response = mapper.writeValueAsString("ERROR: INVALID TICKET PROCESSING REQUEST");
+
+            // finally we return the response
+            EmployeeService.sendResponse(exchange, response);
+        }
+    }
 }

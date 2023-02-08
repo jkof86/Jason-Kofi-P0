@@ -18,16 +18,16 @@ public final class App {
     private App() {
     }
 
-        public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         // System.out.println("Hello World!");
 
         // Employee emp = new Employee();
         // ObjectMapper mapper = new ObjectMapper();
         // try {
-        //     System.out.println(mapper.writeValueAsString(emp));
+        // System.out.println(mapper.writeValueAsString(emp));
         // } catch (IOException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
         // }
 
         // File f = new File("test.txt");
@@ -36,20 +36,20 @@ public final class App {
         // else{
 
         // try {
-        //     f.createNewFile();
-        //     f.exists();
+        // f.createNewFile();
+        // f.exists();
         // } catch (IOException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
         // }
 
         // try {
-        //     FileWriter fw = new FileWriter(f);
-        //     fw.write("Writing to the second file");
-        //     fw.close();
+        // FileWriter fw = new FileWriter(f);
+        // fw.write("Writing to the second file");
+        // fw.close();
         // } catch (IOException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
         // }
 
         int port1 = 8000;
@@ -62,10 +62,9 @@ public final class App {
         server.createContext("/testUrl/tickets", new Controller());
         server.createContext("/testUrl/pastTickets", new Controller());
 
-        server.start(); //starts backend    
+        server.start(); // starts backend
         System.out.println("Local server running on port: " + port1);
-        
-        }
 
     }
 
+}
