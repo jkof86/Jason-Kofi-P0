@@ -96,7 +96,7 @@ public class TicketService {
         t = repo.process(sb.toString());
 
         // If we have a valid ticket processing we continue as normal
-        if (t != null) {
+        if (t != null ) {
 
             // then we locate the updated ticket
             t = repo.getTicket(sb.toString());

@@ -163,12 +163,18 @@ public class TicketRepository {
         // first we need to convert the jsonObj to a Ticket obj
         // first we create a new mapper and Ticket obj
         ObjectMapper mapper = new ObjectMapper();
-        Ticket t = new Ticket();
+        Ticket t1 = new Ticket();
+        Ticket t2 = new Ticket();
+        TicketRepository trepo = new TicketRepository();
 
         // System.out.println("test");
         // then we convert the jsonObj to a Ticket using the mapper class
         try {
-            t = mapper.readValue(jsonObj, Ticket.class);
+            //this is the ticket pulled from the DB
+            t1 = trepo.getTicket(jsonObj);
+            
+            //this is the ticket request from the client
+            t2 = mapper.readValue(jsonObj, Ticket.class);
         } catch (JsonParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -180,20 +186,22 @@ public class TicketRepository {
             e.printStackTrace();
         }
         System.out.println("\nTicket object created.");
-        System.out.println(t.toString());
+        System.out.println(t1.toString());
 
-        // if the manager has sent an approval request then we set the status of the
-        // object to "approved"
-        if (t.getStatus().equals("approved")) {
-            t.setStatus("approved");
-        }
-        // if the manager denies, we set the status to "denied"
-        else if (t.getStatus().equals("denied")) {
-            t.setStatus("denied");
-        }
-        // if the request is netiher "approved" or "denied" we return null;
-        else {
+        // if the ticket pulled from the DB is not pending, we can't access it, therefore we return null;
+        if (!t1.getStatus().equalsIgnoreCase("pending")) {
             return null;
+        } else {
+            // if the current ticket is pending...
+            // if the manager has sent an approval request then we set the status of the
+            // object to "approved"
+            if (t1.getStatus().equals("approved")) {
+                t1.setStatus("approved");
+            }
+            // if the manager denies, we set the status to "denied"
+            else if (t1.getStatus().equals("denied")) {
+                t1.setStatus("denied");
+            }
         }
 
         // this sql query will require a PreparedStatement and an executeUpdate() for
@@ -204,8 +212,8 @@ public class TicketRepository {
 
             // here we copy the status of the Ticket obj over to the DB
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, t.getStatus());
-            ps.setInt(2, t.getId());
+            ps.setString(1, t1.getStatus());
+            ps.setInt(2, t1.getId());
             // if the statement executes successfully, we return the object and a
             // confirmation in the response body
 
@@ -220,8 +228,8 @@ public class TicketRepository {
             // else we return null
             if (result > 0) {
                 System.out.println("TICKET PROCESSED SUCCESSFULLY");
-                System.out.println(t.toString());
-                return t;
+                System.out.println(t1.toString());
+                return t1;
             } else {
                 return null;
             }
